@@ -4,7 +4,7 @@ This demo uses [minikube](https://kubernetes.io/docs/tasks/tools/install-minikub
 
 *install instructions:*
 
-1. start minikube
+1. start minikube</br>
 `$ minikube start --network-plugin=cni --extra-config=kubelet.network-plugin=cni --memory=5120`
 2. Install etcd as a dependency of cilium in minikube by running:</br>
 `$ kubectl create -n kube-system -f https://raw.githubusercontent.com/cilium/cilium/HEAD/examples/kubernetes/addons/etcd/standalone-etcd.yaml`</br>

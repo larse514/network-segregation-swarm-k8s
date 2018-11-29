@@ -1,28 +1,33 @@
-`kubectl create -f kubernetes/network-example.yaml`
+# Network Segregration with Kubernetes and Cilium
+This demo uses [minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) and cilinium based on the guide from the Cilium [site](https://cilium.readthedocs.io/en/latest/gettingstarted/minikube/#gs-minikube
+)
 
-install insturctions:
+*install instructions:*
 
-https://cilium.readthedocs.io/en/latest/gettingstarted/minikube/#gs-minikube
+1. start minikube
+`$ minikube start --network-plugin=cni --extra-config=kubelet.network-plugin=cni --memory=5120`
+2. Install etcd as a dependency of cilium in minikube by running:</br>
+`$ kubectl create -n kube-system -f https://raw.githubusercontent.com/cilium/cilium/HEAD/examples/kubernetes/addons/etcd/standalone-etcd.yaml`</br>
+`$ kubectl create -f https://raw.githubusercontent.com/cilium/cilium/HEAD/examples/kubernetes/1.8/cilium.yaml`
+3. Check deployment</br>
+`$ kubectl get daemonsets -n kube-system`
+``` 
+NAME         DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+cilium       1         1         1       1            1           <none>          57m
+kube-proxy   1         1         1       1            1           <none>          58m
+```
+4. Create the sample applications</br>
+`$ kubectl create -f kubernetes/app-a-app-b.yaml`
+5. Confirm the containers can access one another</br>
+`$ kubectl exec client-a -- curl -s http://service-b/hello -m 1`</br>
+`$ kubectl exec client-a -- curl -s http://service-a/hello -m 1`</br>
+`$ kubectl exec client-b -- curl -s http://service-b/hello -m 1`</br>
+`$ kubectl exec client-b -- curl -s http://service-a/hello -m 1`</br>
 
-install minikube
-$ some instruction
-start minikube
-$ minikube start --network-plugin=cni --extra-config=kubelet.network-plugin=cni --memory=5120
-Install etcd as a dependency of cilium in minikube by running:
-
-$ kubectl create -n kube-system -f https://raw.githubusercontent.com/cilium/cilium/HEAD/examples/kubernetes/addons/etcd/standalone-etcd.yaml
-$ kubectl create -f https://raw.githubusercontent.com/cilium/cilium/HEAD/examples/kubernetes/1.8/cilium.yaml
-check deployment
-$ kubectl get daemonsets -n kube-system
-$ kubectl create -f kubernetes/app-a-app-b.yaml
-check access
-$ kubectl exec client-a -- curl -s http://service-b/hello -m 1
-$ kubectl exec client-a -- curl -s http://service-a/hello -m 1
-$ kubectl exec client-b -- curl -s http://service-b/hello -m 1
-$ kubectl exec client-b -- curl -s http://service-a/hello -m 1
-Apply L4 policy
-$ kubectl create -f kubernetes/l4-network-policy.yaml
-
-attempt to call b from a
-
-kubectl -n default delete po,svc --all                                      # Delete all pods and services, including uninitialized ones, in namespace default,
+![](gifs/render1543459590080.gif)
+6. Apply network policy</br>
+`$ kubectl create -f kubernetes/l4-network-policy.yaml`
+7. Confirm access is restricted</br>
+`$ kubectl exec client-b -- curl -s http://service-b/hello -m 1`</br>
+`$ kubectl exec client-b -- curl -s http://service-a/hello -m 1`</br>
+![](gifs/render1543460227337.gif)

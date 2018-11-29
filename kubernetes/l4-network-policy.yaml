@@ -2,12 +2,12 @@ apiVersion: "cilium.io/v2"
 kind: CiliumNetworkPolicy
 description: "L3-L4 policy to restrict application a access to only containers in application a network"
 metadata:
-  name: "rule1"
+  name: "basicnetworkpolicy"
 spec:
   endpointSelector:
     matchLabels:
       org: application-a
-      class: app-a
+      class: service-a
   ingress:
   - fromEndpoints:
     - matchLabels:

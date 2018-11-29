@@ -16,9 +16,10 @@ check deployment
 $ kubectl get daemonsets -n kube-system
 $ kubectl create -f kubernetes/app-a-app-b.yaml
 check access
-$ kubectl exec microservice-a -- curl -s http://app-a -m 1
-$ kubectl exec microservice-b -- curl -s http://app-a -m 1
-
+$ kubectl exec client-a -- curl -s http://service-b/hello -m 1
+$ kubectl exec client-a -- curl -s http://service-a/hello -m 1
+$ kubectl exec client-b -- curl -s http://service-b/hello -m 1
+$ kubectl exec client-b -- curl -s http://service-a/hello -m 1
 Apply L4 policy
 $ kubectl create -f kubernetes/l4-network-policy.yaml
 
